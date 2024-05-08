@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { preview } from "../assets";
@@ -20,8 +20,8 @@ const CreatePost = () => {
       try {
         setGeneratingImg(true);
         const response = await fetch(
-          // "http://localhost:5000/api/v1/dalle",
-          "https://ai-image-generator-fhh3.onrender.com/api/v1/dalle",
+          "http://localhost:5000/api/v1/dalle",
+          // "https://ai-image-generator-fhh3.onrender.com/api/v1/dalle",
           {
             method: "POST",
             headers: {
@@ -33,10 +33,15 @@ const CreatePost = () => {
           }
         );
   
+        if (!response.ok) {
+          throw new Error(`Failed to generate image: ${response.status} ${response.statusText}`);
+        }
+  
         const image = await response.text();
         setForm({ ...form, photo: `data:image/jpeg;base64,${image}` });
       } catch (err) {
-        alert(err);
+        console.error("An error occurred while generating image:", err);
+        alert("An error occurred while generating image. Please try again.");
       } finally {
         setGeneratingImg(false);
       }
@@ -53,8 +58,8 @@ const CreatePost = () => {
 
       try {
         const response = await fetch(
-          // "http://localhost:5000/api/v1/post",
-          "https://ai-image-generator-fhh3.onrender.com/api/v1/post",
+          "http://localhost:5000/api/v1/post",
+          // "https://ai-image-generator-fhh3.onrender.com/api/v1/post",
           {
             method: "POST",
             headers: {
@@ -64,9 +69,16 @@ const CreatePost = () => {
           }
         );
 
+        if (!response.ok) {
+          throw new Error(`Failed to share post: ${response.status} ${response.statusText}`);
+        }
+
         await response.json();
         navigate("/");
       } catch (error) {
+        console.error("An error occurred while sharing post:", error);
+        alert("An error occurred while sharing post. Please try again.");
+      } finally {
         setLoading(false);
       }
     } else {
@@ -165,4 +177,5 @@ const CreatePost = () => {
     </section>
   );
 };
+
 export default CreatePost;
